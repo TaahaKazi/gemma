@@ -9,3 +9,7 @@ input_ids = tokenizer(input_text, return_tensors="pt").to("cuda")
 
 outputs = model.generate(**input_ids, max_length=100, do_sample=False)
 print(tokenizer.decode(outputs[0]))
+
+import json
+# read key.json and extract the key
+key = json.loads(open('key.json').read())['key']
