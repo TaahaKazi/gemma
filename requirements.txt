@@ -1,0 +1,3 @@
+torch>=2.1.1
+transformers==4.39.3
+accelerate
