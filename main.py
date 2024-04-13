@@ -14,7 +14,7 @@ from datasets import load_dataset
 def formatting_func(example):
     output_texts = []
     for i in range(len(example['sql_prompt'])):
-        text = f"Context: {example['sql_context'][i]}\nTask: {example['sql'][i]}\nSolution:\nExplanation: {example['sql_explanation'][i]}\nAnswer: {example['sql'][i]}]"
+        text = f"### Input: {example['sql_prompt'][i]}\n ### Output: {example['sql'][i]}"
         output_texts.append(text)
     return output_texts
 
@@ -30,7 +30,7 @@ def run(model_id="google/gemma-7b"):
 
     tokenizer = AutoTokenizer.from_pretrained(model_id, token=os.environ['HF_TOKEN'])
     model = AutoModelForCausalLM.from_pretrained(model_id, quantization_config=bnb_config, device_map={"": 0},
-                                                 token=os.environ['HF_TOKEN'], attn_implementation="flash_attention_2")
+                                                 token=os.environ['HF_TOKEN'])
 
     # Save the model
     os.environ["WANDB_DISABLED"] = "true"
@@ -48,12 +48,11 @@ def run(model_id="google/gemma-7b"):
     trainer = SFTTrainer(
         model=model,
         train_dataset=data["test"],
-        max_seq_length=1024,
+        max_seq_length=512,
         args=transformers.TrainingArguments(
             per_device_train_batch_size=1,
             gradient_accumulation_steps=4,
-            warmup_steps=100,
-            #num_train_epochs=1,
+            warmup_steps=2,
             max_steps=5,
             learning_rate=2e-4,
             fp16=True,
